@@ -12,7 +12,7 @@ APP_NAME = "IT Dashboard"
 VERSION = "0.1.0"
 
 def main():
-    # --- 1. Variable Declarations (Req 1, 2) ---
+    # --- Variable Declarations (Req 1, 2) ---
     # Using descriptive snake_case and all four basic types
     server_name = "Not entered"    # str
     ip_address  = "Not entered"    # str
@@ -22,7 +22,7 @@ def main():
     usage_pct     = 0.0            # float
     report_ready  = False          # bool
 
-    # --- 2. Main Menu Loop (Req 6) ---
+    # --- Main Menu Loop (Req 6) ---
     while True:
         print(f"\n--- {APP_NAME} v{VERSION} ---")
         print("1) Enter server info")
@@ -32,7 +32,7 @@ def main():
 
         choice = input("\nSelect an option: ")
 
-        # --- 3. Input and Validation (Req 3 and 9) ---
+        # --- Input and Validation (Req 3 and 9) ---
         if choice == "1":
             print("\n--- Enter Server Details ---")
             server_name = input("Server Name : ")
@@ -62,7 +62,7 @@ def main():
             except ValueError:
                 print("\n[!] Error: Please enter valid numeric whole numbers.")
 
-        # --- 4. Logic and Report Output (Req 4, 5, and 7) ---
+        # --- Logic and Report Output (Req 4, 5, and 7) ---
         elif choice == "2":
             if not report_ready:
                 print("\n[!] Please enter data first (Option 1).")
@@ -96,7 +96,7 @@ def main():
                 for check in checks:
                     print(f"  - {check:<18}: PASS")
 
-        # --- 5. In-Class Lab #1 Requirement ---
+        # --- In-Class Lab #1 Requirement ---
         elif choice == "3":
             # Data for Lab #1
             name = "Jorden Stafford"
@@ -116,7 +116,7 @@ def main():
             print(f"{'Date':<15}: {today}")
             print("~"*50)
 
-        # --- 6. Exit Option ---
+        # --- Exit Option ---
         elif choice == "4":
             print(f"\nExiting {APP_NAME}. Goodbye!")
             break
