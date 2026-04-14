@@ -1,50 +1,55 @@
 """
 IT Dashboard — COP1034C Python for IT
-Jorden Stafford | 4/7/26
+Jorden Stafford | 4/14/26
 
-Description: A simple IT monitoring tool that evaluates server disk usage.
+Description: Integrated IT tool for manual disk monitoring and automated log analysis.
 """
 
-# ── Application Metadata & Imports ───────────────────────
-from datetime import datetime  
+from datetime import datetime 
+import sys
+import os
 
 APP_NAME = "IT Dashboard"
-VERSION = "0.1.0"
+VERSION = "0.2.5" 
 
 def main():
-    # --- Variable Declarations (Req 1, 2) ---
-    # Using descriptive snake_case and all four basic types
-    server_name = "Not entered"    # str
-    ip_address  = "Not entered"    # str
-    department  = "Not entered"    # str
-    total_disk_gb = 0              # int
-    used_disk_gb  = 0              # int
-    usage_pct     = 0.0            # float
-    report_ready  = False          # bool
+    # --- Week 1 Variable Declarations ---
+    server_name = "Not entered"
+    ip_address  = "Not entered"
+    department  = "Not entered"
+    total_disk_gb = 0
+    used_disk_gb  = 0
+    usage_pct     = 0.0
+    report_ready  = False
 
-    # --- Main Menu Loop (Req 6) ---
+    # Paths for Week 2 Logic
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    log_path = os.path.join(base_dir, "Data", "server.log")
+    logs_folder = os.path.join(base_dir, "Logs")
+    output_path = os.path.join(logs_folder, "log_summary.txt")
+
+    # --- Main Menu Loop ---
     while True:
         print(f"\n--- {APP_NAME} v{VERSION} ---")
         print("1) Enter server info")
         print("2) View report")
         print("3) Student Info (Lab #1)")
-        print("4) Exit")
+        print("4) File Analysis (Week 2)") 
+        print("5) Exit")
 
         choice = input("\nSelect an option: ")
 
-        # --- Input and Validation (Req 3 and 9) ---
+        # --- Option 1: Manual Input ---
         if choice == "1":
             print("\n--- Enter Server Details ---")
             server_name = input("Server Name : ")
             ip_address  = input("IP Address  : ")
             department  = input("Department  : ")
             
-            # Casting numeric inputs (Req 3)
             try:
                 total_disk_gb = int(input("Total Disk (GB): "))
                 used_disk_gb  = int(input("Used Disk (GB) : "))
 
-                # Edge Case Handling (Req 9)
                 if total_disk_gb <= 0:
                     print("\n[!] Error: Total disk must be greater than 0.")
                     report_ready = False
@@ -55,19 +60,17 @@ def main():
                     print("\n[!] Error: Values cannot be negative.")
                     report_ready = False
                 else:
-                    # Logic and Calculation
                     usage_pct = (used_disk_gb / total_disk_gb) * 100
                     report_ready = True
                     print("\nData saved successfully!")
             except ValueError:
                 print("\n[!] Error: Please enter valid numeric whole numbers.")
 
-        # --- Logic and Report Output (Req 4, 5, and 7) ---
+        # --- Option 2: View Manual Report (RESTORED) ---
         elif choice == "2":
             if not report_ready:
                 print("\n[!] Please enter data first (Option 1).")
             else:
-                # Classification Logic (Req 5)
                 if usage_pct > 90:
                     status = "CRITICAL - Immediate action required"
                 elif usage_pct > 75:
@@ -75,7 +78,6 @@ def main():
                 else:
                     status = "OK - Disk usage is normal"
 
-                # Formatted Output (Req 4)
                 print("\n" + "="*40)
                 print(f"{'IT SYSTEM STATUS REPORT':^40}")
                 print("="*40)
@@ -90,20 +92,17 @@ def main():
                 print(f"{'Status':<15}: {status}")
                 print("="*40)
 
-                # Requirement 7: For Loop
                 checks = ["Ping response", "DNS resolution", "Firewall active"]
                 print("\nSystem Health Checks:")
                 for check in checks:
                     print(f"  - {check:<18}: PASS")
 
-        # --- In-Class Lab #1 Requirement ---
+        # --- Option 3: Student Info (RESTORED) ---
         elif choice == "3":
-            # Data for Lab #1
             name = "Jorden Stafford"
             course = "Programming for IT Professionals"
             instructor = "Professor Mora"
             assignment = "Week 1 in class lab"
-            # Requirement: Use datetime for current date
             today = datetime.now().strftime("%m/%d/%Y")
 
             print("\n" + "~"*50)
@@ -116,14 +115,81 @@ def main():
             print(f"{'Date':<15}: {today}")
             print("~"*50)
 
-        # --- Exit Option ---
+        # --- Option 4: Log File Analysis (Dual Output) ---
         elif choice == "4":
+            severity_counts = {}
+            unique_errors = set()
+            log_entries = []
+
+            try:
+                if not os.path.exists(log_path):
+                    raise FileNotFoundError
+
+                with open(log_path, 'r') as f:
+                    for line in f:
+                        clean_line = line.strip()
+                        if not clean_line: continue
+                        
+                        date_comp = clean_line[0:10]
+                        parts = clean_line.split(maxsplit=3)
+                        
+                        if len(parts) >= 4:
+                            sev = parts[2].strip("[]").upper()
+                            msg = parts[3]
+                            severity_counts[sev] = severity_counts.get(sev, 0) + 1
+                            if sev == "ERROR": unique_errors.add(msg)
+                            log_entries.append({"date": date_comp, "severity": sev, "message": msg})
+
+                total = len(log_entries)
+                err_list = [e for e in log_entries if e['severity'] == "ERROR"]
+                err_rate = (len(err_list) / total * 100) if total > 0 else 0.0
+
+                if not os.path.exists(logs_folder):
+                    os.makedirs(logs_folder)
+
+                with open(output_path, 'w') as out:
+                    lines = [
+                        "\n" + "=" * 36,
+                        f"{'SERVER LOG ANALYSIS REPORT':^36}",
+                        "=" * 36,
+                        f"{'Log File':<12}: server.log",
+                        f"{'Lines Read':<12}: {total}",
+                        "-" * 36,
+                        "SEVERITY COUNTS"
+                    ]
+                    for level in ["INFO", "WARNING", "ERROR", "CRITICAL"]:
+                        count = severity_counts.get(level, 0)
+                        lines.append(f"  {level:<9} : {count:>2}")
+                    
+                    lines.append("-" * 36)
+                    lines.append(f"ERROR RATE  : {err_rate:.2f}%")
+                    lines.append("-" * 36)
+                    lines.append(f"UNIQUE ERRORS ({len(unique_errors)} total)")
+                    for err in sorted(unique_errors):
+                        lines.append(f"  - {err}")
+                    
+                    crits = [e['message'] for e in log_entries if e['severity'] == "CRITICAL"]
+                    lines.append(f"CRITICAL EVENTS ({len(crits)} total)")
+                    for msg in crits:
+                        lines.append(f"  - {msg}")
+                    lines.append("=" * 36)
+
+                    for l in lines:
+                        print(l)
+                        print(l, file=out)
+
+                print(f"\n[SUCCESS] Report generated in: {output_path}")
+
+            except FileNotFoundError:
+                print(f"\n[ERROR] Python cannot find 'server.log' at {log_path}")
+
+        # --- Option 5: Exit ---
+        elif choice == "5":
             print(f"\nExiting {APP_NAME}. Goodbye!")
             break
 
         else:
-            print("\n[!] Invalid choice. Please enter 1, 2, 3, or 4.")
+            print("\n[!] Invalid choice.")
 
-# ── Run the program ───────────────────────────────────────
 if __name__ == "__main__":
     main()
