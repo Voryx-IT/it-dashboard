@@ -66,7 +66,7 @@ def main():
             except ValueError:
                 print("\n[!] Error: Please enter valid numeric whole numbers.")
 
-        # --- Option 2: View Manual Report (RESTORED) ---
+        # --- Option 2: View Manual Report ---
         elif choice == "2":
             if not report_ready:
                 print("\n[!] Please enter data first (Option 1).")
@@ -97,7 +97,7 @@ def main():
                 for check in checks:
                     print(f"  - {check:<18}: PASS")
 
-        # --- Option 3: Student Info (RESTORED) ---
+        # --- Option 3: Student Info ---
         elif choice == "3":
             name = "Jorden Stafford"
             course = "Programming for IT Professionals"
@@ -115,7 +115,7 @@ def main():
             print(f"{'Date':<15}: {today}")
             print("~"*50)
 
-        # --- Option 4: Log File Analysis (Dual Output) ---
+        # --- Option 4: Log File Analysis ---
         elif choice == "4":
             severity_counts = {}
             unique_errors = set()
